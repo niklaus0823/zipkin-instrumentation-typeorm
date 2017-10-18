@@ -1,6 +1,6 @@
 import * as zipkin from 'zipkin';
 
-export interface MiddlewareOptions {
+export interface TraceInfo {
     tracer: zipkin.Tracer;
     serviceName?: string;
     remoteServiceName?: string;
@@ -8,5 +8,5 @@ export interface MiddlewareOptions {
 }
 
 export declare class TypeOrmInstrumentation {
-    public static proxyConnection<T>(conn: T, ctx: Object, options: MiddlewareOptions): T;
+    public static proxyConnection<T>(conn: T, ctx: object, info: TraceInfo): T;
 }

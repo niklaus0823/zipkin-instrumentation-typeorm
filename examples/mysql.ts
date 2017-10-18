@@ -1,16 +1,7 @@
-# typeorm
-
-Typeorm db connection and instrumentation that adds Zipkin tracing to the application.
-
-### Typeorm DB Connection Proxy
-
-This library will wrap grpc client proxy to record traces.
-
-```typescript
 import * as zipkin from 'zipkin';
 import * as TransportHttp from 'zipkin-transport-http';
 import * as CLSContext from 'zipkin-context-cls';
-import {TypeOrmInstrumentation} from 'typeorm-zpikin';
+import {TypeOrmInstrumentation} from '../index';
 import {Entity, Column, PrimaryGeneratedColumn, createConnection} from 'typeorm';
 
 // Typeorm Entity
@@ -69,4 +60,3 @@ export async function getOrder(ctx?: Object): Promise<OrderEntity> {
     const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, ctx, tracerInfo);
     return await builderProxy.getOne();
 }
-```

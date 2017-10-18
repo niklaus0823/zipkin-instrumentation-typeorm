@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
-    "sourceMap": true,
+    "sourceMap": false,
     "rootDir": "src",
     "outDir": "lib",
     "experimentalDecorators": true,
@@ -10,12 +10,14 @@
   },
   "include": [
     "src/**/*.ts",
+    "examples/**/*.ts",
     "typings/**/*.d.ts",
     "node_modules/grpc-tsd/src/grpc.d.ts"
   ],
   "exclude": [
     "src/proto/**/*",
     "src/index.d.ts",
+    "examples/**/*.ts",
     "node_modules"
   ]
 }
