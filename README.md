@@ -2,6 +2,50 @@
 
 Typeorm db connection and instrumentation that adds Zipkin tracing to the application.
 
+## Install
+
+```bash
+$ npm install --save zipkin-instrumentation-typeorm
+```
+
+## API
+
+### proxyConnection([conn], [info], [ctx])
+
+#### conn
+
+Type: `typeorm.SelectQueryBuilder`<br>
+
+Allows to build complex sql queries in a fashion way and execute those queries.
+
+#### info
+##### tracer
+
+Type: `zipkin.Tracer` or `false`<br>
+Default: `false`
+
+##### serviceName
+
+Type: `string`<br>
+Default: `unknown`
+
+##### remoteServiceName
+
+Type: `string`<br>
+Default: `unknown`
+
+##### port
+
+Type: `number`<br>
+Default: `0`
+
+#### ctx
+Type: `object`<br>
+
+Example: ctx[zipkin.HttpHeaders.TraceId] = new zipkin.TraceId();
+
+## Examples
+
 ### Typeorm DB Connection Proxy
 
 This library will wrap grpc client proxy to record traces.
@@ -66,7 +110,7 @@ export async function getOrder(ctx?: Object): Promise<OrderEntity> {
         .createQueryBuilder('order')
         .where(`order.id=:id`, {id: '1000'});
 
-    const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, ctx, tracerInfo);
+    const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, tracerInfo, ctx);
     return await builderProxy.getOne();
 }
 ```

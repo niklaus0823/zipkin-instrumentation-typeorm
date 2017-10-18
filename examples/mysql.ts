@@ -57,6 +57,6 @@ export async function getOrder(ctx?: Object): Promise<OrderEntity> {
         .createQueryBuilder('order')
         .where(`order.id=:id`, {id: '1000'});
 
-    const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, ctx, tracerInfo);
+    const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, tracerInfo, ctx);
     return await builderProxy.getOne();
 }

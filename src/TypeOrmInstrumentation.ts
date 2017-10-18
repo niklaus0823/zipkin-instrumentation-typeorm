@@ -1,23 +1,32 @@
 import * as zipkin from 'zipkin';
 
 export interface TraceInfo {
-    tracer: zipkin.Tracer;
+    tracer: zipkin.Tracer | false;
     serviceName?: string;
     remoteServiceName?: string;
     port?: number;
 }
 
+const defaultTraceInfo: TraceInfo = {
+    tracer: false,
+    serviceName: 'unknown',
+    remoteServiceName: 'unknown',
+    port: 0,
+};
+
 export class TypeOrmInstrumentation {
 
-    public static proxyConnection<T>(conn: T, ctx: object, info: TraceInfo): T {
+    public static proxyConnection<T>(conn: T, info: TraceInfo = defaultTraceInfo, ctx?: object): T {
+        if (info.tracer === false) {
+            return conn;
+        }
+
+        // Set value
         const tracer = info.tracer;
         const serviceName = info.serviceName || 'unknown';
         const port = info.port || 0;
 
-        if (tracer === false) {
-            return conn;
-        }
-
+        // Set parent traceId
         if (ctx
             && ctx.hasOwnProperty(zipkin.HttpHeaders.TraceId)
             && ctx[zipkin.HttpHeaders.TraceId] instanceof zipkin.TraceId) {
