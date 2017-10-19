@@ -2,10 +2,8 @@
 
 /// <reference types="node" />
 
-import * as CLSContext from 'zipkin-context-cls';
-
 export interface TracerOption {
-    ctxImpl?: CLSContext;
+    ctxImpl?: any;
     recorder?: zipkin.BatchRecorder;
     sampler?: any;
     traceId128Bit?: boolean;

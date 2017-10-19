@@ -31,7 +31,7 @@ export class TypeOrmInstrumentation {
             }
 
             // Set value
-            const tracer = info.tracer;
+            const tracer = info.tracer as zipkin.Tracer;
             const serviceName = info.serviceName || 'unknown';
             const port = info.port || 0;
 

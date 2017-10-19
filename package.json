@@ -1,6 +1,6 @@
 {
   "name": "zipkin-instrumentation-typeorm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Typeorm db connection for instrumentation with Zipkin.js",
   "main": "lib/index.js",
   "author": "Fengjie  <https://github.com/niklaus0823>",
@@ -8,9 +8,7 @@
   "repository": "https://github.com/niklaus0823/zipkin-instrumentation-typeorm",
   "dependencies": {
     "typeorm": "^0.1.1",
-    "zipkin": "^0.7.3",
-    "zipkin-context-cls": "^0.6.1",
-    "zipkin-transport-http": "^0.7.3"
+    "zipkin": "^0.7.3"
   },
   "devDependencies": {
     "@types/node": "^8.0.44"
