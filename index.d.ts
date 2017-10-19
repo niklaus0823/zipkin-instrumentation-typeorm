@@ -1,4 +1,5 @@
 import * as zipkin from 'zipkin';
+import {Connection, ObjectType, SelectQueryBuilder} from 'typeorm';
 
 export interface TraceInfo {
     tracer: zipkin.Tracer | false;
@@ -7,6 +8,10 @@ export interface TraceInfo {
     port?: number;
 }
 
-export declare class TypeOrmInstrumentation {
-    public static proxyConnection<T>(conn: T, info?: TraceInfo, ctx?: object): T;
+export interface ProxyConnection extends Connection {
+    proxyQueryBuilder?: <Entity>(target: ObjectType<Entity> | string, alias: string, info?: TraceInfo, ctx?: object) => SelectQueryBuilder<Entity>;
+}
+
+export class TypeOrmInstrumentation {
+    public static proxyConnection(conn: Connection): ProxyConnection;
 }

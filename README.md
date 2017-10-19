@@ -10,13 +10,27 @@ $ npm install --save zipkin-instrumentation-typeorm
 
 ## API
 
-### proxyConnection([conn], [info], [ctx])
+### proxyConnection([conn])
 
 #### conn
 
 Type: `typeorm.SelectQueryBuilder`<br>
 
 Allows to build complex sql queries in a fashion way and execute those queries.
+
+### proxyConnection.proxyQueryBuilder([target], [alias], [info], [ctx])
+
+#### target
+
+Type: `ObjectType<Entity>`<br>
+
+Represents some Type of the Object. see: [typeorm.Connection::getRepository](https://github.com/typeorm/typeorm/blob/master/src/connection/Connection.ts)
+
+#### alias
+
+Type: `string`<br>
+
+Database sheet name alias. see: [typeorm.Repository::createQueryBuilder](https://github.com/typeorm/typeorm/blob/master/src/repository/Repository.ts)
 
 #### info
 ##### tracer
@@ -54,21 +68,9 @@ This library will wrap grpc client proxy to record traces.
 import * as zipkin from 'zipkin';
 import * as TransportHttp from 'zipkin-transport-http';
 import * as CLSContext from 'zipkin-context-cls';
-import {TypeOrmInstrumentation} from 'typeorm-zpikin';
-import {Entity, Column, PrimaryGeneratedColumn, createConnection} from 'typeorm';
-
-// Typeorm Entity
-@Entity()
-export class OrderEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column('text')
-    price: string;
-
-    @Column('text', {name: 'create_time'})
-    createTime: string;
-}
+import {TypeOrmInstrumentation} from '../index';
+import {User as UserEntity} from './entity/User';
+import {Entity, createConnection} from 'typeorm';
 
 // Build TracerInfo
 const tracerInfo = {
@@ -86,10 +88,14 @@ const tracerInfo = {
     port: 0
 };
 
-export async function getOrder(ctx?: Object): Promise<OrderEntity> {
+async function getUser(): Promise<UserEntity> {
+    // create parent TraceId
+    let ctx = {};
+    ctx[zipkin.HttpHeaders.TraceId] = new zipkin.TraceId();
+
     // build entities
     const entities = [];
-    entities.push({OrderEntity: OrderEntity});
+    entities.push({UserEntity: UserEntity});
 
     // create typeorm db connection
     const conn = await createConnection({
@@ -103,14 +109,14 @@ export async function getOrder(ctx?: Object): Promise<OrderEntity> {
         synchronize: true,
         logging: false
     });
+    const proxyConn = TypeOrmInstrumentation.proxyConnection(conn);
 
-    // get typeorm SelectQueryBuilder
-    const builder = conn
-        .getRepository(OrderEntity)
-        .createQueryBuilder('order')
-        .where(`order.id=:id`, {id: '1000'});
-
-    const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, tracerInfo, ctx);
-    return await builderProxy.getOne();
+    return await proxyConn.proxyQueryBuilder(UserEntity, 'user', tracerInfo, ctx)
+        .where(`user.id=:id`, {id: '1000'})
+        .getOne();
 }
+
+getUser()
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
 ```

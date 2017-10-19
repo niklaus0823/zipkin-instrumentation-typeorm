@@ -2,20 +2,8 @@ import * as zipkin from 'zipkin';
 import * as TransportHttp from 'zipkin-transport-http';
 import * as CLSContext from 'zipkin-context-cls';
 import {TypeOrmInstrumentation} from '../index';
-import {Entity, Column, PrimaryGeneratedColumn, createConnection} from 'typeorm';
-
-// Typeorm Entity
-@Entity()
-export class OrderEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column('text')
-    price: string;
-
-    @Column('text', {name: 'create_time'})
-    createTime: string;
-}
+import {User as UserEntity} from './entity/User';
+import {Entity, createConnection} from 'typeorm';
 
 // Build TracerInfo
 const tracerInfo = {
@@ -33,10 +21,14 @@ const tracerInfo = {
     port: 0
 };
 
-export async function getOrder(ctx?: Object): Promise<OrderEntity> {
+async function getUser(): Promise<UserEntity> {
+    // create parent TraceId
+    let ctx = {};
+    ctx[zipkin.HttpHeaders.TraceId] = new zipkin.TraceId();
+
     // build entities
     const entities = [];
-    entities.push({OrderEntity: OrderEntity});
+    entities.push({UserEntity: UserEntity});
 
     // create typeorm db connection
     const conn = await createConnection({
@@ -50,13 +42,13 @@ export async function getOrder(ctx?: Object): Promise<OrderEntity> {
         synchronize: true,
         logging: false
     });
+    const proxyConn = TypeOrmInstrumentation.proxyConnection(conn);
 
-    // get typeorm SelectQueryBuilder
-    const builder = conn
-        .getRepository(OrderEntity)
-        .createQueryBuilder('order')
-        .where(`order.id=:id`, {id: '1000'});
-
-    const builderProxy = TypeOrmInstrumentation.proxyConnection(builder, tracerInfo, ctx);
-    return await builderProxy.getOne();
+    return await proxyConn.proxyQueryBuilder(UserEntity, 'user', tracerInfo, ctx)
+        .where(`user.id=:id`, {id: '1000'})
+        .getOne();
 }
+
+getUser()
+    .then(res => console.log(res))
+    .catch(err => console.log(err));
