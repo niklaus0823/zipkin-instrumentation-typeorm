@@ -1,17 +1,17 @@
 import * as zipkin from 'zipkin';
-import {Connection, ObjectType, SelectQueryBuilder} from 'typeorm';
+import {Connection} from 'typeorm';
 
 export interface TraceInfo {
     tracer: zipkin.Tracer | false;
     serviceName?: string;
-    remoteServiceName?: string;
     port?: number;
-}
-
-export interface ProxyConnection extends Connection {
-    proxyQueryBuilder?: <Entity>(target: ObjectType<Entity> | string, alias: string, info?: TraceInfo, ctx?: object) => SelectQueryBuilder<Entity>;
+    remoteService?: {
+        serviceName?: string;
+        host?: string;
+        port?: number;
+    };
 }
 
 export class TypeOrmInstrumentation {
-    public static proxyConnection(conn: Connection): ProxyConnection;
+    public static proxyConnection(conn: Connection, info?: TraceInfo, ctx?: object): Connection;
 }

@@ -20,8 +20,10 @@ async function getUser(): Promise<UserEntity> {
         entities: entities,
     });
 
-    return await TypeOrmInstrumentation.proxyConnection(conn)
-        .proxyQueryBuilder(UserEntity, 'user', {tracer})
+    const proxyConn = TypeOrmInstrumentation.proxyConnection(conn, {tracer});
+
+    return await proxyConn.getRepository(UserEntity)
+        .createQueryBuilder('user')
         .where(`user.id=:id`, {id: '1000'})
         .getOne();
 }

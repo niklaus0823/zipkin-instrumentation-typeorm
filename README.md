@@ -10,27 +10,13 @@ $ npm install --save zipkin-instrumentation-typeorm
 
 ## API
 
-### proxyConnection([conn])
+### proxyConnection([conn], [info], [ctx])
 
 #### conn
 
 Type: `typeorm.SelectQueryBuilder`<br>
 
 Allows to build complex sql queries in a fashion way and execute those queries.
-
-### proxyConnection.proxyQueryBuilder([target], [alias], [info], [ctx])
-
-#### target
-
-Type: `ObjectType<Entity>`<br>
-
-Represents some Type of the Object. see: [typeorm.Connection::getRepository](https://github.com/typeorm/typeorm/blob/master/src/connection/Connection.ts)
-
-#### alias
-
-Type: `string`<br>
-
-Database sheet name alias. see: [typeorm.Repository::createQueryBuilder](https://github.com/typeorm/typeorm/blob/master/src/repository/Repository.ts)
 
 #### info
 ##### tracer
@@ -87,8 +73,10 @@ async function getUser(): Promise<UserEntity> {
         entities: entities,
     });
 
-    return await TypeOrmInstrumentation.proxyConnection(conn)
-        .proxyQueryBuilder(UserEntity, 'user', {tracer})
+    const proxyConn = TypeOrmInstrumentation.proxyConnection(conn, {tracer});
+
+    return await proxyConn.getRepository(UserEntity)
+        .createQueryBuilder('user')
         .where(`user.id=:id`, {id: '1000'})
         .getOne();
 }
