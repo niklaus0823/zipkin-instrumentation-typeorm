@@ -163,7 +163,11 @@ export declare namespace zipkin {
         alwaysSample(traceId: TraceId): boolean;
     }
 
-    export type InetAddress = any;
+    export type InetAddress = {
+        constructor(addr: string);
+        toInt(): number;
+        toString(): string;
+    };
 
     export type ConsoleRecorder = any;
 

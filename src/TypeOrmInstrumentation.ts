@@ -45,10 +45,10 @@ export class TypeOrmInstrumentation {
 
                 Object.getOwnPropertyNames(Object.getPrototypeOf(queryBuilder)).forEach((property) => {
 
-                    const original = queryBuilder[property];
                     if (property == 'stream'
                         || property == 'executeCountQuery'
                         || property == 'loadRawResults') {
+                        const original = queryBuilder[property];
 
                         queryBuilder[property] = function () {
                             // create SpanId
@@ -67,7 +67,11 @@ export class TypeOrmInstrumentation {
                                 }
 
                                 if (remoteService) {
-                                    tracer.recordAnnotation(new zipkin.Annotation.ServerAddr(remoteService));
+                                    tracer.recordAnnotation(new zipkin.Annotation.ServerAddr({
+                                        serviceName: remoteService.serviceName,
+                                        host: new zipkin.InetAddress(remoteService.host),
+                                        port: remoteService.port
+                                    }));
                                 }
                             });
 
