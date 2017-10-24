@@ -20,7 +20,7 @@ const defaultTraceInfo: TraceInfo = {
 
 export class TypeOrmInstrumentation {
     public static proxyConnection(conn: Connection, info: TraceInfo = defaultTraceInfo, ctx?: object): Connection {
-        if (info.tracer === false) {
+        if (info.tracer === false || conn['proxy'] == true) {
             return conn;
         }
 
@@ -38,6 +38,9 @@ export class TypeOrmInstrumentation {
         const getRepositoryOriginal = conn['getRepository'];
         conn['getRepository'] = function <Entity>(): Repository<Entity> {
             const repository = getRepositoryOriginal.apply(conn, arguments);
+            if (conn['proxy'] == true) {
+                return repository
+            }
 
             const createQueryBuilderOriginal = conn['createQueryBuilder'];
             conn['createQueryBuilder'] = function (): SelectQueryBuilder<Entity> {
@@ -97,6 +100,7 @@ export class TypeOrmInstrumentation {
                     }
                 });
 
+                conn['proxy'] = true;
                 return queryBuilder;
             };
 
