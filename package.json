@@ -1,6 +1,6 @@
 {
   "name": "zipkin-instrumentation-typeorm",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Typeorm db connection for instrumentation with Zipkin.js",
   "main": "lib/index.js",
   "author": "Fengjie  <https://github.com/niklaus0823>",
