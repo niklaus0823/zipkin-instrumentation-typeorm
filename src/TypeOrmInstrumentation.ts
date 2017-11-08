@@ -90,8 +90,8 @@ export class TypeOrmInstrumentation {
                             }).catch((err) => {
                                 tracer.scoped(() => {
                                     tracer.setId(traceId);
-                                    tracer.recordBinary('db_sql', `Error`);
-                                    tracer.recordBinary('rpc_end_response', err.message);
+                                    tracer.recordBinary('db_end', `Error`);
+                                    tracer.recordBinary('db_response', err.message);
                                     tracer.recordAnnotation(new zipkin.Annotation.ClientRecv());
                                 });
                                 throw err
