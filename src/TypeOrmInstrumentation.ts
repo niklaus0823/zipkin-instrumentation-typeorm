@@ -60,7 +60,7 @@ export class TypeOrmInstrumentation {
 
                             tracer.scoped(() => {
                                 tracer.recordServiceName(serviceName);
-                                tracer.recordRpc(`db`);
+                                tracer.recordRpc(`db(${queryBuilder.getMainTableName()})`);
                                 tracer.recordBinary('db_sql', queryBuilder['getSql']());
                                 tracer.recordAnnotation(new zipkin.Annotation.ClientSend());
                                 tracer.recordAnnotation(new zipkin.Annotation.LocalAddr({port}));
