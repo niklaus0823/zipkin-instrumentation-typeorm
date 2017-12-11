@@ -9,12 +9,14 @@ export interface TraceInfo {
         host?: string,
         port?: number
     };
+    annotateResponse?: boolean;
     port?: number;
 }
 
 const defaultTraceInfo: TraceInfo = {
     tracer: false,
     serviceName: 'unknown',
+    annotateResponse: true,
     port: 0,
 };
 
@@ -27,6 +29,7 @@ export class TypeOrmInstrumentation {
         const tracer = info.tracer as zipkin.Tracer;
         const serviceName = info.serviceName || 'unknown';
         const remoteService = info.remoteService || null;
+        const annotateResponse = info.annotateResponse === true;
         const port = info.port || 0;
 
         if (ctx
@@ -83,7 +86,9 @@ export class TypeOrmInstrumentation {
                                 tracer.scoped(() => {
                                     tracer.setId(traceId);
                                     tracer.recordBinary('db_end', `Succeed`);
-                                    tracer.recordBinary('db_response', JSON.stringify(res));
+                                    if (annotateResponse) {
+                                        tracer.recordBinary('db_response', JSON.stringify(res));
+                                    }
                                     tracer.recordAnnotation(new zipkin.Annotation.ClientRecv());
                                 });
                                 return res;
