@@ -55,10 +55,10 @@ export class TypeOrmInstrumentation {
 
                         queryBuilder[property] = function () {
                             // create SpanId
-                            tracer.setId(tracer.createChildId());
-                            const traceId = tracer.id;
+                            const traceId = tracer.createChildId();
 
                             tracer.scoped(() => {
+                                tracer.setId(traceId);
                                 tracer.recordServiceName(serviceName);
                                 tracer.recordRpc(`db`);
                                 tracer.recordBinary('db_sql', queryBuilder['getSql']());
